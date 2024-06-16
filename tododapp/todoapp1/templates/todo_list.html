@@ -1,0 +1,458 @@
+{% comment %} <!-- todos/templates/todos/todo_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        /* Add your custom CSS styles for modern design here */
+        .todo {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .completed {
+            background-color: lightgreen;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .todo-title {
+            color: #333;
+        }
+        .completed-title {
+            color: #333;
+        }
+        .todos-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .add-todo-form {
+            margin-bottom: 20px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .actions button {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .actions .edit-btn {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .actions .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        .actions .complete-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .actions .complete-btn:hover {
+            background-color: #218838;
+        }
+        .actions .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .actions .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="todos-container">
+        <div class="todos">
+            <h2>Todo Tasks:</h2>
+            {% for todo in todos %}
+            <div class="todo">
+                <p class="todo-title">{{ todo.title }}</p>
+                <div class="actions">
+                    <a href="{% url 'edit_todo' todo.id %}" class="edit-btn">Edit</a>
+                    <form action="{% url 'complete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="complete-btn" type="submit">Complete</button>
+                    </form>
+                    <form action="{% url 'delete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="delete-btn" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="completed-todos">
+            <h2>Completed Tasks:</h2>
+            {% for todo in completed_todos %}
+            <div class="completed">
+                <p class="completed-title">{{ todo.title }}</p>
+                <div class="actions">
+                    <form action="{% url 'delete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="delete-btn" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <form class="add-todo-form" method="post" action="{% url 'add_todo' %}">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Enter a new task">
+        <button type="submit">Add Task</button>
+    </form>
+</body>
+</html> {% endcomment %}
+
+
+
+
+<!-- todos/templates/todos/todo_list.html -->
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        /* Add your custom CSS styles for modern design here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        .app-heading {
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .todos-container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+        .todos {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .completed-todos {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .todo {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .completed {
+            background-color: lightgreen;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .todo-title, .completed-title {
+            color: #333;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .actions button, .actions a {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .actions .edit-btn {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .actions .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        .actions .complete-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .actions .complete-btn:hover {
+            background-color: #218838;
+        }
+        .actions .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .actions .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .add-todo-form {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .add-todo-form input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .add-todo-form button[type="submit"] {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-todo-form button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-heading">
+        <h1>ToDo App</h1>
+    </div>
+
+    <div class="todos-container">
+        <div class="todos">
+            <h2>Todo Tasks:</h2>
+            {% for todo in todos %}
+            <div class="todo">
+                <p class="todo-title">{{ todo.title }}</p>
+                <div class="actions">
+                    <a href="{% url 'edit_todo' todo.id %}" class="edit-btn">Edit</a>
+                    <form action="{% url 'complete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="complete-btn" type="submit">Complete</button>
+                    </form>
+                    <form action="{% url 'delete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="delete-btn" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="completed-todos">
+            <h2>Completed Tasks:</h2>
+            {% for todo in completed_todos %}
+            <div class="completed">
+                <p class="completed-title">{{ todo.title }}</p>
+                <div class="actions">
+                    <form action="{% url 'delete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="delete-btn" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <form class="add-todo-form" method="post" action="{% url 'add_todo' %}">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Enter a new task">
+        <button type="submit">Add Task</button>
+    </form>
+</body>
+</html> {% endcomment %}
+
+<!-- todos/templates/todos/todo_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        /* Add your custom CSS styles for modern design here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        .app-heading {
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .todos-container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+        .todos, .completed-todos {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 3D shadow effect */
+        }
+        .todos {
+            margin-right: 10px; /* Adjusted margin between todos and completed-todos */
+        }
+        .completed-todos {
+            margin-left: 10px; /* Adjusted margin between todos and completed-todos */
+        }
+        .todo {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .completed {
+            background-color: lightgreen;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .todo-title, .completed-title {
+            color: #333; /* Black color for task titles */
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .actions button, .actions a {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .actions .edit-btn {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .actions .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        .actions .complete-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .actions .complete-btn:hover {
+            background-color: #218838;
+        }
+        .actions .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .actions .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .add-todo-form {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .add-todo-form input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .add-todo-form button[type="submit"] {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-todo-form button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .todos h2 {
+            color: #f58026; /* Orange color for Todo Tasks heading */
+        }
+        .completed-todos h2 {
+            color: #28a745; /* Green color for Completed Tasks heading */
+        }
+    </style>
+</head>
+<body>
+    <div class="app-heading">
+        <h1>ToDo App</h1>
+    </div>
+
+    <div class="todos-container">
+        <div class="todos">
+            <h2>Todo Tasks:</h2>
+            {% for todo in todos %}
+            <div class="todo">
+                <p class="todo-title">{{ todo.title }}</p>
+                <div class="actions">
+                    <a href="{% url 'edit_todo' todo.id %}" class="edit-btn">Edit</a>
+                    <form action="{% url 'complete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="complete-btn" type="submit">Complete</button>
+                    </form>
+                    <form action="{% url 'delete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="delete-btn" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="completed-todos">
+            <h2>Completed Tasks:</h2>
+            {% for todo in completed_todos %}
+            <div class="completed">
+                <p class="completed-title">{{ todo.title }}</p>
+                <div class="actions">
+                    <form action="{% url 'delete_todo' todo.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="delete-btn" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <form class="add-todo-form" method="post" action="{% url 'add_todo' %}">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Enter a new task">
+        <button type="submit">Add Task</button>
+    </form>
+</body>
+</html>
+
+
